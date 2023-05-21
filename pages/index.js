@@ -1,115 +1,60 @@
-import Head from 'next/head';
 import styles from '../styles/Home.module.css';
+import Paper from '@mui/material/Paper';
+import * as React from 'react';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import { styled, alpha } from '@mui/material/styles';
+import Link from 'next/link';
+import Root from '../components/navigation'
+import { useQuery } from "@apollo/client"
+import { getServerSideProps } from '../lib/getServerSideProps'
 
-export default function Home() {
+export { getServerSideProps };
+
+export default function Home({user}) {
+  const width = typeof window !== "undefined" ? window.innerWidth : undefined;
+  const height = typeof window !== "undefined" ? window.innerWidth : undefined;
+
+  const [width_state, setWidthState] = React.useState(width);
+  const [height_state, setHeightState] = React.useState(height);
+  React.useLayoutEffect(() => {
+    if (typeof window !== "undefined") {
+      const updateSize = () => {
+        setWidthState(window.innerWidth);
+        setHeightState(window.innerHeight);
+    };
+
+    window.addEventListener('resize', updateSize);
+    updateSize();
+
+    return () => window.removeEventListener('resize', updateSize);
+    }
+  }, [])
+
+  const TopPageView = styled(Paper)(({ theme }) => ({
+      backgroundImage: `url(${process.env.PUBLIC_URL + '/top.png'})`,
+      backgroundRepeat: "no-repeat",
+      backgroundSize: "cover",
+      margin: -30,
+      width: width_state,
+      height: height_state,
+      '&::before': {
+          position: "absolute",
+          left: 0,
+          top: 63,
+          width: width_state,
+          height: height_state,
+          backgroundColor: "rgba(0,0,0,.5)",
+          content: `''`,
+      }
+  }))
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing <code>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className={styles.logo} />
-        </a>
-      </footer>
-
-      <style jsx>{`
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        footer img {
-          margin-left: 0.5rem;
-        }
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          text-decoration: none;
-          color: inherit;
-        }
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-        }
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
-    </div>
+      <TopPageView>
+          <Typography variant="h6" component="div" sx={{ textAlign: "center", verticalAlign: 'center', position: "relative", top: "20%", fontWeight: "bold", fontSize: "40px", color: "white" }}>
+          <img src='/levonia.png'/><br /><span style={{ fontSize: "30px" }}>〜AI小説のシェアプラットフォーム〜</span>
+              <br /><Link href={`/novels/`} style={{ color: "black", textDecoration: "none" }}><Button variant="contained"  style={{backgroundColor: 'blue'}}>AI小説を読む</Button></Link>
+          </Typography>
+      </TopPageView>
   )
 }

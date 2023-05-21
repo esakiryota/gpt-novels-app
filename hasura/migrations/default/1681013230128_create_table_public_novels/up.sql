@@ -1,0 +1,1 @@
+CREATE TABLE "public"."novels" ("pk" serial NOT NULL, "content" text, "created_at" timestamptz NOT NULL DEFAULT now(), "title" text, "category_pk" integer, PRIMARY KEY ("pk") , FOREIGN KEY ("category_pk") REFERENCES "public"."categories"("pk") ON UPDATE restrict ON DELETE restrict, UNIQUE ("pk"));COMMENT ON TABLE "public"."novels" IS E'小説';

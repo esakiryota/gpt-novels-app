@@ -1,0 +1,1 @@
+CREATE TABLE "public"."users_favorite" ("pk" serial NOT NULL, "user_pk" integer NOT NULL, "novel_pk" integer NOT NULL, PRIMARY KEY ("pk") , FOREIGN KEY ("user_pk") REFERENCES "public"."users"("pk") ON UPDATE restrict ON DELETE restrict, UNIQUE ("pk"));COMMENT ON TABLE "public"."users_favorite" IS E'users_favoritec';

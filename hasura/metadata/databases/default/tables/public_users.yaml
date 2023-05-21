@@ -1,0 +1,77 @@
+table:
+  name: users
+  schema: public
+array_relationships:
+  - name: users_comments
+    using:
+      foreign_key_constraint_on:
+        column: user_pk
+        table:
+          name: comments
+          schema: public
+  - name: users_follow_relationships
+    using:
+      foreign_key_constraint_on:
+        column: follower_pk
+        table:
+          name: users_relationships
+          schema: public
+  - name: users_follower_relationships
+    using:
+      manual_configuration:
+        column_mapping:
+          pk: follower_pk
+        insertion_order: null
+        remote_table:
+          name: users_relationships
+          schema: public
+  - name: users_novels
+    using:
+      foreign_key_constraint_on:
+        column: user_pk
+        table:
+          name: novels
+          schema: public
+  - name: users_users_favorites
+    using:
+      foreign_key_constraint_on:
+        column: user_pk
+        table:
+          name: users_favorite
+          schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - email
+        - id
+        - image
+        - introduce
+        - pk
+        - username
+      filter: {}
+      allow_aggregations: true
+  - role: user
+    permission:
+      columns:
+        - pk
+        - email
+        - id
+        - image
+        - introduce
+        - password
+        - username
+      filter: {}
+      allow_aggregations: true
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - image
+        - introduce
+        - password
+        - username
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      check: null

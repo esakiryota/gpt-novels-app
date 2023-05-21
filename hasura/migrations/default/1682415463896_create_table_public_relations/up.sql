@@ -1,0 +1,1 @@
+CREATE TABLE "public"."relations" ("id" serial NOT NULL, "follow_user_id" text NOT NULL, "follower_user_id" text NOT NULL, PRIMARY KEY ("id") , UNIQUE ("id"));COMMENT ON TABLE "public"."relations" IS E'follow and follower';

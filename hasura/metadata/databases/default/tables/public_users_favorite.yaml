@@ -1,0 +1,36 @@
+table:
+  name: users_favorite
+  schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check: {}
+      columns:
+        - novel_pk
+        - pk
+        - user_id
+        - user_pk
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - novel_pk
+        - pk
+        - user_pk
+      filter: {}
+      allow_aggregations: true
+  - role: user
+    permission:
+      columns:
+        - novel_pk
+        - pk
+        - user_id
+        - user_pk
+      filter: {}
+      allow_aggregations: true
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id

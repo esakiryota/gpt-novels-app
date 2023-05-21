@@ -1,0 +1,7 @@
+version: 3
+endpoint: https://special-kit-67.hasura.app
+admin_secret: Gb33gPWdeTJ3xGus1x5j17iSUMIThQLNybWqSCgl3SaHxB3BIxgAQYrtf5fWUGbG
+metadata_directory: metadata
+actions:
+  kind: synchronous
+  handler_webhook_baseurl: http://localhost:3000

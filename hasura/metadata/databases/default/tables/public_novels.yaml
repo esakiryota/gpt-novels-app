@@ -1,0 +1,84 @@
+table:
+  name: novels
+  schema: public
+object_relationships:
+  - name: category
+    using:
+      foreign_key_constraint_on: category_pk
+  - name: user
+    using:
+      foreign_key_constraint_on: user_pk
+array_relationships:
+  - name: novels_comments
+    using:
+      foreign_key_constraint_on:
+        column: novel_pk
+        table:
+          name: comments
+          schema: public
+  - name: novels_users_favorites
+    using:
+      foreign_key_constraint_on:
+        column: novel_pk
+        table:
+          name: users_favorite
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check: {}
+      columns:
+        - category_pk
+        - content
+        - created_at
+        - favorites
+        - pk
+        - read_later
+        - title
+        - user_id
+        - user_pk
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - category_pk
+        - favorites
+        - pk
+        - read_later
+        - user_pk
+        - content
+        - title
+        - created_at
+      filter: {}
+      allow_aggregations: true
+  - role: user
+    permission:
+      columns:
+        - category_pk
+        - favorites
+        - pk
+        - read_later
+        - user_pk
+        - content
+        - title
+        - created_at
+      filter: {}
+      allow_aggregations: true
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - category_pk
+        - favorites
+        - pk
+        - read_later
+        - user_pk
+        - content
+        - title
+        - created_at
+      filter: {}
+      check: null
+delete_permissions:
+  - role: user
+    permission:
+      filter: {}

@@ -1,0 +1,53 @@
+table:
+  name: users_relationships
+  schema: public
+object_relationships:
+  - name: users_follow_relationships_user
+    using:
+      foreign_key_constraint_on: follow_pk
+  - name: users_follower_relationships_user
+    using:
+      manual_configuration:
+        column_mapping:
+          follower_pk: pk
+        insertion_order: null
+        remote_table:
+          name: users
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        follow_id:
+          _eq: X-Hasura-User-Id
+      columns:
+        - follow_id
+        - follow_pk
+        - follower_id
+        - follower_pk
+        - pk
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - follow_pk
+        - follower_pk
+        - pk
+      filter: {}
+      allow_aggregations: true
+  - role: user
+    permission:
+      columns:
+        - follow_id
+        - follow_pk
+        - follower_id
+        - follower_pk
+        - pk
+      filter: {}
+      allow_aggregations: true
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        follow_id:
+          _eq: X-Hasura-User-Id

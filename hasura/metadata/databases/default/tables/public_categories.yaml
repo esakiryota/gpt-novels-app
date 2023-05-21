@@ -1,0 +1,16 @@
+table:
+  name: categories
+  schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - pk
+        - name
+      filter: {}
+  - role: user
+    permission:
+      columns:
+        - pk
+        - name
+      filter: {}

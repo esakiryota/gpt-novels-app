@@ -7,9 +7,31 @@ import { styled, alpha } from '@mui/material/styles';
 import Link from 'next/link';
 import Root from '../components/navigation'
 import { useQuery } from "@apollo/client"
-import { getServerSideProps } from '../lib/getServerSideProps'
+import { withIronSessionSsr } from "iron-session/next";
+import { ironOptions } from "../lib/ironSession/config";
 
-export { getServerSideProps };
+export const getServerSideProps = withIronSessionSsr(
+    async function getServerSideProps({ req }) {
+      const user = req.session.user;
+      if (!user) {
+        const authCheck = false;
+        return {
+            props: {
+                auth: authCheck
+            }
+        }
+      } else {
+        const authCheck = true;
+        return {
+            props: {
+                user: user,
+                auth: authCheck
+            }
+        }
+      }
+    },
+    ironOptions
+  );
 
 export default function Home({user}) {
   const width = typeof window !== "undefined" ? window.innerWidth : undefined;

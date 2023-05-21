@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import * as React from 'react';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import TopBar from '../../components/topbar';
+import TopBar from '../../components/topBar';
 
 
 function Terms() {

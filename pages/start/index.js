@@ -7,7 +7,7 @@ import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
 import Avatar from '@mui/material/Avatar';
 import Grid from '@mui/material/Grid';
-import TopBar from '../../components/topbar';
+import TopBar from '../../components/topBar';
 
 
 function Start() {

@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import TopBar from '../../components/topbar';
+import TopBar from '../../components/topBar';
 import Link from 'next/link';
 import { getServerSideProps } from '../../lib/getServerSideProps'
 import { GET_USERS_ONE_BY_ID_FOR_PROFILE } from '../../lib/graphql/query/usersQuery'

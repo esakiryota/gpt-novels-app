@@ -17,6 +17,7 @@ import Avatar from '@mui/material/Avatar';
 import PersonIcon from '@mui/icons-material/Person';
 import ModeIcon from '@mui/icons-material/Mode';
 import TopBar from '../../../components/topBar';
+
 import Link from 'next/link';
 import { getServerSideProps } from '../../../lib/getServerSideProps';
 import { GET_USERS_ONE_BY_PK_QUERY, GET_USERS_ONE_BY_ID_FOR_FOLLOW } from "../../../lib/graphql/query/usersQuery"

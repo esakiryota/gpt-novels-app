@@ -11,9 +11,11 @@ array_relationships:
           schema: public
   - name: users_follow_relationships
     using:
-      foreign_key_constraint_on:
-        column: follower_pk
-        table:
+      manual_configuration:
+        column_mapping:
+          pk: follow_pk
+        insertion_order: null
+        remote_table:
           name: users_relationships
           schema: public
   - name: users_follower_relationships

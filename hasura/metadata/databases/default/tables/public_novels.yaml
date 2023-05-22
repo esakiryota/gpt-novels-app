@@ -69,13 +69,14 @@ update_permissions:
     permission:
       columns:
         - category_pk
+        - content
+        - created_at
         - favorites
         - pk
         - read_later
-        - user_pk
-        - content
         - title
-        - created_at
+        - user_id
+        - user_pk
       filter: {}
       check: null
 delete_permissions:

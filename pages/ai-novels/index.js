@@ -16,7 +16,7 @@ import FormLabel from '@mui/material/FormLabel';
 import NovelGridList from "../../components/novels/novelList"
 import { useQuery } from "@apollo/client"
 import { GET_CATEGORIES_QUERY } from "../../lib/graphql/query/categoriesQuery"
-import { GET_NOVELS_QUERY, GET_NOVEL_BY_SEARCH } from "../../lib/graphql/query/novelsQuery"
+import { GET_NOVELS_QUERY, GET_AI_NOVEL_BY_SEARCH } from "../../lib/graphql/query/novelsQuery"
 import CircularProgress from '@mui/material/CircularProgress';
 import { useRouter } from 'next/router'
 // import { getServerSideProps } from '../../lib/getServerSideProps'
@@ -53,9 +53,9 @@ export const getServerSideProps = withIronSessionSsr(
 function Category() {
     const categoriesQuery = useQuery(GET_CATEGORIES_QUERY);
 
-    const [searchParams, setSearchParams] = React.useState({order_by: {created_at: "asc"}, content: "", category: "全て", offset: 0, limit: 10})
+    const [searchParams, setSearchParams] = React.useState({order_by: {created_at: "asc"}, content: "", category: "全て", offset: 0, limit: 10, user_id: "HXeMh86h6qfIDqLnXEaigHTF3O23"})
 
-    const novelsQuery = useQuery(GET_NOVEL_BY_SEARCH(searchParams.content, searchParams.category), {
+    const novelsQuery = useQuery(GET_AI_NOVEL_BY_SEARCH(searchParams.content, searchParams.category), {
         variables: searchParams,
         onError: (error) => {
             toast.error("データの取得に失敗しました。");

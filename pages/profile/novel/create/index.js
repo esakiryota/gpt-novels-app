@@ -138,7 +138,7 @@ export default function CreateNovel({user}) {
             name="content"
             onChange={(e) => setNovelValues({ ...novelValues, "content": e.target.value })}
           />
-          <Button variant="contained" endIcon={<SendIcon />} sx={{ margin: 3 }} onClick={(e) => onClickCreateNovel(e)}>
+          <Button variant="contained" endIcon={<SendIcon />} sx={{ margin: 3, width: '25%', height: "25%" }} onClick={(e) => onClickCreateNovel(e)}>
             投稿
           </Button>
         </FormControl>

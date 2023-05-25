@@ -239,9 +239,6 @@ function ProfileNovels(props) {
                                    <StrToDate date={value["created_at"]} />
                                 </Typography>
                             </Grid>
-                            <Grid item xs={4} md={4} sx={{ textAlign: "right" }}>
-                                    <><Link href={`/profile/novel/update/${value["pk"]}`}><ModeEditIcon /></Link><DeleteIcon onClick={(e) => handleDeleteClick(value["pk"])} /></>
-                            </Grid>
                             <Grid item xs={12} md={12}>
                                 <Typography variant="h5" component="div">
                                     {value["title"]}

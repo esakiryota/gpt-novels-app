@@ -33,7 +33,8 @@ const drawerWidth = 240;
 
 const sidebar_list = [
     ['TOP', '/'],
-    ['AI小説', "/novels/"],
+    ['投稿小説', "/novels/"],
+    ['AI小説', "/ai-novels/"],
 ]
 
 const default_list = [

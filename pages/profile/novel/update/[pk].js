@@ -66,7 +66,7 @@ export default function UpdateNovel({user}) {
     setCategoryPk(value);
   };
 
-  const [update_novels_by_pk, { data: usersRelationshipsData }] = useMutation(UPDATE_NOVELS_ONE_MUTATION);
+  const [update_novels_by_pk, { data: usersRelationshipsData, loading: updataLoading }] = useMutation(UPDATE_NOVELS_ONE_MUTATION);
 
   const onClickCreateNovel = async (e) => {
     update_novels_by_pk(
@@ -127,8 +127,16 @@ export default function UpdateNovel({user}) {
             onChange={(e) => setNovelValues({...novelValues,"content" : e.target.value})}
             defaultValue={novel?.content}
           />
-          <Button variant="contained" endIcon={<SendIcon />} sx={{ margin: 3 }} onClick={(e) => onClickCreateNovel(e)}>
-            投稿
+          <Button variant="contained" sx={{ margin: "auto", marginBottom: "10px", width: "20%", position: 'relative' }} onClick={(e) => onClickCreateNovel(e)}>
+            {
+              updataLoading ?
+              <CircularProgress sx={{
+                height: '100%'
+              }}/>
+              :
+              "投稿"
+            }
+            
           </Button>
         </FormControl>
       </Paper>

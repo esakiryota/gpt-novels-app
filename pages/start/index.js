@@ -14,7 +14,7 @@ function Start() {
     return (
         <Box>
             <TopBar name="始め方" />
-            <Box>
+            <Box sx={{margin: 5}}>
                 <Box style={{fontSize: 24, fontWeight: "bold", marginBottom: 5}}>ユーザー登録をしていない場合</Box>
                 <Box style={{fontSize: 18}}>1. AI小説をクリック</Box>
                 <Box style={{fontSize: 18}}>2. 小説のジャンル、作品名、、お気に入り数の多い順などでAI小説を見つける</Box>

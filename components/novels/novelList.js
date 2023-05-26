@@ -82,7 +82,7 @@ export default function NovelGridList(props) {
                                 </Typography>
                             </CardContent>
                             <CardActions>
-                                <FavoriteIcon />{value.novels_users_favorites_aggregate.aggregate.count}<StarIcon />{value["read_later"]}
+                                <FavoriteIcon />{value.novels_users_favorites_aggregate.aggregate.count}
                             </CardActions>
                         </Card>
                     </Link>

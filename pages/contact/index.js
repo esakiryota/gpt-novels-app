@@ -66,9 +66,11 @@ function Contact() {
                         sx={{margin: 3}}
                         onChange={(e) => value["content"] = e.target.value}
                     />
-                    <Button variant="contained" endIcon={<SendIcon />} sx={{margin: 3}} onClick={handleSendClick}>
+                    <Grid sx={{textAlign:"center"}}>
+                    <Button variant="contained" sx={{ margin: 3, width: '25%', height: "25%" }} onClick={handleSendClick}>
                         Send
                     </Button>
+                    </Grid>
                 </FormControl>
             </Paper>
             </Container>

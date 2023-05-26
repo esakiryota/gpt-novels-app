@@ -73,9 +73,11 @@ export default function EditProfile({user}) {
                         sx={{ margin: 3 }}
                         onChange={(e) => setUserValue({ ...userValue, "introduce": e.target.value })}
                     />
-                    <Button variant="contained" endIcon={<SendIcon />} sx={{ margin: 3 }} onClick={(e) => onClickUserForm(e)} >
+                    <Grid sx={{textAlign: "center"}}>
+                    <Button variant="contained" sx={{ margin: 3 }} onClick={(e) => onClickUserForm(e)} >
                         Send
                     </Button>
+                    </Grid>
                 </FormControl>
                 <Toaster/>
             </Paper>

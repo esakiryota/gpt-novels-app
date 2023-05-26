@@ -79,15 +79,19 @@ function FollowButton({user_pk, user_id, pk, id}) {
         }
     )
 
+    const [followBoolean, setFollowBoolean] = React.useState(checkFollowQuery.data?.users_relationships.length)
+
     const [insert_users_relationships_one, { data: usersRelationshipsData }] = useMutation(INSERT_USERS_RELATIONSHIPS_ONE_MUTATION);
 
     const follow = checkFollowQuery.loading ? false : checkFollowQuery.data.users_relationships.length;
     const handleFollow = (e) => {
+        setFollowBoolean(true)
         insert_users_relationships_one({
             variables: {follow_pk: user_pk, follower_pk: pk, follow_id: user_id, follower_id: id},
             onError: (error) => {
                 toast.error("データの更新に失敗しました。");
                 console.error(error);
+                setFollowBoolean(false)
             },
             onCompleted: () => {
                 toast.success("フォローしました。");
@@ -99,11 +103,13 @@ function FollowButton({user_pk, user_id, pk, id}) {
     const [delete_users_relationships, { data: deletedUsersRelationshipsData }] = useMutation(DELETE_USERS_RELATIONSHIPS_ONE_MUTATION);
 
     const handleDeleteFollow = async (e) => {
+        setFollowBoolean(false)
         delete_users_relationships({
             variables: {follow_pk: user_pk, follower_pk: pk} ,
             onError: (error) => {
                 toast.error("データの更新に失敗しました。");
                 console.error(error);
+                setFollowBoolean(true)
             },
             onCompleted: () => {
                 toast.success("フォローを外しました。");
@@ -119,7 +125,7 @@ function FollowButton({user_pk, user_id, pk, id}) {
             :
             <>
             {
-            checkFollowQuery.data.users_relationships.length ?
+            followBoolean ?
             <Button onClick={handleDeleteFollow}>フォローを外す</Button>
             :
             <Button onClick={handleFollow}>フォローする</Button>

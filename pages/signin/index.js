@@ -50,13 +50,19 @@ export default function Login() {
     const [password, setPassword] = React.useState("");
     const [email, setEmail] = React.useState("");
     // const session = useSession();
+
+    const [invalidEmailBoolean, setInvalidEmailBoolean] = React.useState(false);
+    const [invalidPasswordBoolean, setInvalidPasswordBoolean] = React.useState(false);
     const router = useRouter();
 
     const onClickLogin = async (e) => {
         e.preventDefault();
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-
-        const user = userCredential.user;
+        setInvalidEmailBoolean(false);
+        setInvalidPasswordBoolean(false);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+        .then(async (userCredential) => {
+            // Signed in
+            const user = userCredential.user;
 
         const res = await fetch('/api/signin', {
             method: 'POST',
@@ -72,6 +78,24 @@ export default function Login() {
         } else {
             toast.error("ログイン失敗しました。");
         }
+            // ...
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorCode)
+            if (errorCode === "auth/invalid-email") {
+                setInvalidEmailBoolean(true);
+            } 
+            if (errorCode === "auth/missing-password" || errorCode === "auth/wrong-password") {
+                setInvalidPasswordBoolean(true);
+            }
+            console.log(errorMessage)
+            toast.error("ログインできませんでした。")
+            // ..
+          });
+
+        
     }
 
     return (
@@ -93,12 +117,12 @@ export default function Login() {
                     <Typography component="h1" variant="h5">
                         ログイン
                     </Typography>
-                    <Box sx={{ mt: 3 }}>
+                    {/* <Box sx={{ mt: 3 }}>
                         <Grid container spacing={2} sx={{ marginBottom: 2 }}>
                             <img src="/sign_in_with_google.png" onClick={() => signIn('google')} width={300} />
                         </Grid>
                         <Divider />
-                    </Box>
+                    </Box> */}
                     <form method="post">
                         <Box sx={{ mt: 3 }}>
                             {auth_error == 1 && <Alert severity="error">正しいメールアドレスとパスワードを入力してください。</Alert>}
@@ -115,6 +139,18 @@ export default function Login() {
                                     />
                                 </Grid>
                                 <Grid item xs={12}>
+                                {
+                                    invalidEmailBoolean && 
+                                    <Typography
+                                    sx={{ display: 'inline', color: "red" }}
+                                    component="span"
+                                    variant="body2"
+                                  >
+                                    ※メールアドレスが正しくありません
+                                  </Typography>
+                                }
+                                </Grid>
+                                <Grid item xs={12}>
                                     <TextField
                                         required
                                         fullWidth
@@ -126,19 +162,33 @@ export default function Login() {
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
                                 </Grid>
+                                <Grid item xs={12}>
+                                {
+                                    invalidPasswordBoolean && 
+                                    <Typography
+                                    sx={{ display: 'inline', color: "red" }}
+                                    component="span"
+                                    variant="body2"
+                                  >
+                                    ※パスワードが正しくありません
+                                  </Typography>
+                                }
+                                </Grid>
                             </Grid>
+                            <Grid sx={{ textAlign: "center"}}>
                             <Button
                                 // type="submit"
                                 onClick={onClickLogin}
-                                fullWidth
+                                // fullWidth
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2 }}
                             >
                                 ログイン
                             </Button>
+                            </Grid>
                             <Grid container justifyContent="flex-end">
                                 <Grid item>
-                                    <Link href="/register" variant="body2">
+                                    <Link href="/signup" variant="body2">
                                         アカウントを作成
                                     </Link>
                                 </Grid>

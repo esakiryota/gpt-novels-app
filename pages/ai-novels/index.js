@@ -53,6 +53,8 @@ export const getServerSideProps = withIronSessionSsr(
 function Category() {
     const categoriesQuery = useQuery(GET_CATEGORIES_QUERY);
 
+    const [fetchMoreLoading, setFetchMoreLoading] = React.useState(false)
+
     const [searchParams, setSearchParams] = React.useState({order_by: {created_at: "asc"}, content: "", category: "全て", offset: 0, limit: 10, user_id: "HXeMh86h6qfIDqLnXEaigHTF3O23"})
 
     const novelsQuery = useQuery(GET_AI_NOVEL_BY_SEARCH(searchParams.content, searchParams.category), {
@@ -91,7 +93,10 @@ function Category() {
         setSearchParams(prevState => ({ ...prevState, content: value }));
     }
 
+    
+
     const handleNovelsClick = (e) => {
+        setFetchMoreLoading(true)
         novelsQuery.fetchMore({
             variables: {
               offset: novelsQuery.data.novels.length, // 現在のアイテム数から新しいオフセットを計算する
@@ -105,7 +110,10 @@ function Category() {
             onError: (error) => {
                 toast.error("データの取得に失敗しました。");
                 console.error(error)
+                setFetchMoreLoading(false)
             },
+          }).then(() => {
+            setFetchMoreLoading(false)
           });
     }
 
@@ -168,11 +176,11 @@ function Category() {
                 <Grid item xs={12} sx={{ textAlign: "center", margin: 5 }}>
                     <Button variant="outlined" color="inherit" style={{ backgroudColor: "black" }} size="large" onClick={handleNovelsClick}>
                         {
-                novelsQuery.loading ?
-                <CircularProgress />
-                :
-                <>さらに読み込む</>
-            }
+                            fetchMoreLoading ?
+                            <CircularProgress />
+                            :
+                            <>さらに読み込む</>
+                        }
                     </Button>
                 </Grid>
             </Box>

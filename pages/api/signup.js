@@ -11,7 +11,7 @@ export default withIronSessionApiRoute(handler, ironOptions);
 
 
 async function handler(req, res) {
-    const { email, password, id } = req.body;
+    const { email, password, id, username } = req.body;
 
     const {data , loading, error} = await client.query({ 
         query: GET_USERS_ONE_BY_EMAIL_QUERY,
@@ -30,7 +30,7 @@ async function handler(req, res) {
 
     const insertUser = await client.mutate({
         mutation: INSERT_USERS_ONE_MUTATION,
-        variables: { email: email, password: hashPassword(password), id: id, username: "ユーザー" } 
+        variables: { email: email, password: hashPassword(password), id: id, username: username } 
     });
 
     if (insertUser.data.insert_users_one) {

@@ -40,7 +40,7 @@ export default function ProfileFollowList({user}) {
 
     return (
         <Box>
-            <TopBar name="フォローしている人" />
+            <TopBar name="フォローされている人" />
             <Grid container spacing={3}>
                 {
                     userQuery.loading ?

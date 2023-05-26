@@ -290,7 +290,7 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                                     variant="body2"
                                     color="text.primary"
                                   >
-                                    {value["user_pk"]} -
+                                    {value["comments_user"]["username"]} -
                                   </Typography>
                                   {value["comment"]}
                                 </React.Fragment>
@@ -316,10 +316,10 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                               onChange={(e) => setCommentEditValue({ ...commentEditValue, "comment": e.target.value })}
                             />
                             <Button variant="contained" endIcon={<SendIcon />} sx={{ margin: 3 }} onClick={(e) => onClickUpdateComment(value["pk"])}>
-                              Send
+                              保存
                             </Button>
                             <Button variant="contained" endIcon={<SendIcon />} sx={{ margin: 3 }} onClick={(e) => handleEditCancelClick(e)}>
-                              Cancel
+                              閉じる
                             </Button>
                           </FormControl>
         

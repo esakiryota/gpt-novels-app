@@ -18,6 +18,7 @@ import { useRouter } from 'next/router';
 import { useQuery, useMutation } from "@apollo/client";
 import client from '../../../../lib/graphql/apolloClient';
 import toast, { Toaster } from 'react-hot-toast';
+import Grid from '@mui/material/Grid';
 
 export { getServerSideProps };
 
@@ -138,9 +139,11 @@ export default function CreateNovel({user}) {
             name="content"
             onChange={(e) => setNovelValues({ ...novelValues, "content": e.target.value })}
           />
-          <Button variant="contained" endIcon={<SendIcon />} sx={{ margin: 3, width: '25%', height: "25%" }} onClick={(e) => onClickCreateNovel(e)}>
+          <Grid sx={{textAlign: "center"}}>
+          <Button variant="contained"  sx={{ margin: 3, width: '25%', height: "25%" }} onClick={(e) => onClickCreateNovel(e)}>
             投稿
           </Button>
+          </Grid>
         </FormControl>
       </Paper>
       <Toaster/>

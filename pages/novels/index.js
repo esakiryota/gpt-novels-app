@@ -55,6 +55,8 @@ function Category() {
 
     const [searchParams, setSearchParams] = React.useState({order_by: {created_at: "asc"}, content: "", category: "全て", offset: 0, limit: 10})
 
+    const [fetchMoreLoading, setFetchMoreLoading] = React.useState(false)
+
     const novelsQuery = useQuery(GET_NOVEL_BY_SEARCH(searchParams.content, searchParams.category), {
         variables: searchParams,
         onError: (error) => {
@@ -92,6 +94,7 @@ function Category() {
     }
 
     const handleNovelsClick = (e) => {
+        setFetchMoreLoading(true)
         novelsQuery.fetchMore({
             variables: {
               offset: novelsQuery.data.novels.length, // 現在のアイテム数から新しいオフセットを計算する
@@ -105,8 +108,11 @@ function Category() {
             onError: (error) => {
                 toast.error("データの取得に失敗しました。");
                 console.error(error)
+                setFetchMoreLoading(false)
             },
-          });
+          }).then(() => {
+            setFetchMoreLoading(false)
+          })
     }
 
     return (
@@ -167,12 +173,12 @@ function Category() {
             <Box sx={{ flexGrow: 1 }}>
                 <Grid item xs={12} sx={{ textAlign: "center", margin: 5 }}>
                     <Button variant="outlined" color="inherit" style={{ backgroudColor: "black" }} size="large" onClick={handleNovelsClick}>
-                        {
-                novelsQuery.loading ?
-                <CircularProgress />
-                :
-                <>さらに読み込む</>
-            }
+                    {
+                            fetchMoreLoading ?
+                            <CircularProgress />
+                            :
+                            <>さらに読み込む</>
+                        }
                     </Button>
                 </Grid>
             </Box>

@@ -34,14 +34,20 @@ export default function Register() {
   const [email, setEmail] = React.useState("");
   const router = useRouter();
 
+  const [isInvalidEmail, setIsInvalidEmail] = React.useState(false);
+  const [isInvalidPassword, setIsInvalidPassword] = React.useState(false);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsInvalidEmail(false);
+    setIsInvalidPassword(false);
     const auth = getAuth();
     let user;
     const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-    const id = userCredential.user.uid
+    .then(async (userCredential) => {
+      // Signed in
+      const id = userCredential.user.uid
 
     const res = await fetch('/api/signup', {
       method: 'POST',
@@ -56,6 +62,23 @@ export default function Register() {
     } else {
       console.error("signup失敗");
     }
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.log(errorCode)
+      if (errorCode === "auth/invalid-email") {
+        setIsInvalidEmail(true);
+      } 
+      if (errorCode === "auth/missing-password" || errorCode === "auth/wrong-password") {
+        setIsInvalidPassword(true);
+      }
+      if (errorCode === "auth/email-already-in-use") {
+        toast.error("そのユーザーは既に登録ずみです");
+      }
+      toast.error("アカウント作成できませんでした。")
+      // ..
+    });
   }
 
 
@@ -79,7 +102,6 @@ export default function Register() {
           <Box component="form" noValidate sx={{ mt: 3 }}>
            
             <Grid container spacing={2}>
-            {"username" in auth_error && <Alert severity="error">正しい名前を入れてください。</Alert>}
             <Grid item xs={12}>
                 <TextField
                   autoComplete="given-name"
@@ -92,7 +114,7 @@ export default function Register() {
                   onChange={(e) => setUsername(e.target.value)}
                 />
               </Grid>
-              {"email" in auth_error && <Alert severity="error">正しいメールアドレスを入れてください。</Alert>}
+              <Grid item xs={12}></Grid>
               <Grid item xs={12}>
                 <TextField
                   required
@@ -104,7 +126,18 @@ export default function Register() {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </Grid>
-              {"password" in auth_error && <Alert severity="error">正しいパスワードを入れてください。</Alert>}
+              <Grid item xs={12}>
+                                {
+                                    isInvalidEmail && 
+                                    <Typography
+                                    sx={{ display: 'inline', color: "red" }}
+                                    component="span"
+                                    variant="body2"
+                                  >
+                                    ※メールアドレスが正しくありません
+                                  </Typography>
+                                }
+                                </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
@@ -117,18 +150,32 @@ export default function Register() {
                   onChange={(e) =>setPassword(e.target.value)}
                 />
               </Grid>
+              <Grid item xs={12}>
+                                {
+                                    isInvalidPassword && 
+                                    <Typography
+                                    sx={{ display: 'inline', color: "red" }}
+                                    component="span"
+                                    variant="body2"
+                                  >
+                                    ※パスワードが正しくありません
+                                  </Typography>
+                                }
+                                </Grid>
             </Grid>
+            <Grid sx={{ textAlign: "center"}}>
             <Button
               onClick={handleSubmit}
-              fullWidth
+              // fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
               アカウントを作成
             </Button>
+            </Grid>
             <Grid container justifyContent="flex-end">
               <Grid item>
-              <Link href="/login" variant="body2">
+              <Link href="/signin" variant="body2">
                  ログインする
                 </Link>
               </Grid>

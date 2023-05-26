@@ -30,6 +30,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useQuery, useMutation } from "@apollo/client"
 import { withIronSessionSsr } from "iron-session/next";
 import { ironOptions } from "../../lib/ironSession/config";
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import Avatar from '@mui/material/Avatar';
 
 export const getServerSideProps = withIronSessionSsr(
     async function getServerSideProps({ req }) {
@@ -104,6 +106,8 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
   const [editMode, setEditMode] = React.useState(-1)
   const [commentEditValue, setCommentEditValue] = React.useState(user === undefined ? false : { "title": "", "comment": "", "user_pk": user.pk, "novel_pk": pk, "user_id": user.id })
 
+  const [favoriteBoolean, setFavoriteBoolean] = React.useState(usersFavoritesQuery.data?.users_favorite.length)
+
   const [insert_comments_one, { data: commentData }] = useMutation(INSERT_COMMENT_ONE_MUTATION);
 
   const onClickCreateComment = (e) => {
@@ -165,10 +169,12 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
   const [insert_users_favorite_one, { data: usersFavoriteData }] = useMutation(INSERT_USERS_FAVORITES_ONE_MUTATION);
 
   const handleFavoriteClick = (e) => {
+    setFavoriteBoolean(true)
     insert_users_favorite_one({
     variables: {user_pk: user.pk, novel_pk: pk, user_id: user.id},
     onError: (error) => {
         toast.error("データの更新に失敗しました。");
+        setFavoriteBoolean(false)
         console.error(error);
     },
     onCompleted: () => {
@@ -181,9 +187,11 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
   const [delete_users_favorite_by_pk, { data: deletedUsersFavoriteData }] = useMutation(DELETE_USERS_FAVORITES_ONE_MUTATION);
 
   const handleDeleteFavoriteClick = (pk) => {
+    setFavoriteBoolean(false)
     delete_users_favorite_by_pk({
     variables: { pk: favoritePk },
     onError: (error) => {
+        setFavoriteBoolean(true)
         toast.error("データの更新に失敗しました。");
         console.error(error);
     },
@@ -193,6 +201,8 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
     }
   })
   }
+
+  console.log(data)
 
 
   return (
@@ -238,7 +248,7 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                 :
                 <>
                 {
-                usersFavoritesQuery.data.users_favorite.length ?
+                favoriteBoolean ?
                   <IconButton edge="end" aria-label="comments"><FavoriteBorderIcon onClick={(e) => handleDeleteFavoriteClick(e)} sx={{ color: "pink" }} /></IconButton>
                   :
                   <IconButton edge="end" aria-label="comments"><FavoriteBorderIcon onClick={(e) => handleFavoriteClick(e)} /></IconButton>
@@ -280,6 +290,13 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                             </>
         
                           }>
+                            <Link href={"/profile/"+value["comments_user"]["pk"]} style={{textDecoration: "none"}}>
+                            <ListItemAvatar>
+                              
+          <Avatar alt={value["comments_user"]["username"]} src="/static/images/avatar/1.jpg" />
+          
+        </ListItemAvatar>
+        </Link>
                             <ListItemText
                               primary={value["title"]}
                               secondary={
@@ -290,7 +307,6 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                                     variant="body2"
                                     color="text.primary"
                                   >
-                                    {value["user_pk"]} -
                                   </Typography>
                                   {value["comment"]}
                                 </React.Fragment>
@@ -315,12 +331,14 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                               sx={{ margin: 3 }}
                               onChange={(e) => setCommentEditValue({ ...commentEditValue, "comment": e.target.value })}
                             />
-                            <Button variant="contained" endIcon={<SendIcon />} sx={{ margin: 3 }} onClick={(e) => onClickUpdateComment(value["pk"])}>
-                              Send
+                            <Grid sx={{textAlign: "center"}}>
+                            <Button variant="contained"  sx={{ margin: 3, width: '10%', height: "20%" }} onClick={(e) => onClickUpdateComment(value["pk"])}>
+                              保存
                             </Button>
-                            <Button variant="contained" endIcon={<SendIcon />} sx={{ margin: 3 }} onClick={(e) => handleEditCancelClick(e)}>
-                              Cancel
+                            <Button variant="contained"  sx={{ margin: 3, width: '10%', height: "20%" }} onClick={(e) => handleEditCancelClick(e)}>
+                              閉じる
                             </Button>
+                            </Grid>
                           </FormControl>
         
                         }

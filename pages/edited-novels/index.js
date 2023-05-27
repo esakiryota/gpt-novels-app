@@ -13,10 +13,11 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
-import NovelGridList from "../../components/aiNovels/novelList"
+import NovelGridList from "../../components/editedNovels/novelList"
 import { useQuery } from "@apollo/client"
 import { GET_CATEGORIES_QUERY } from "../../lib/graphql/query/categoriesQuery"
-import { GET_NOVELS_QUERY, GET_AI_NOVEL_BY_SEARCH } from "../../lib/graphql/query/novelsQuery"
+import { GET_EDITED_NOVEL_BY_SEARCH } from "../../lib/graphql/query/editedNovelsQuery"
+import { GET_NOVELS_QUERY, GET_NOVEL_BY_SEARCH } from "../../lib/graphql/query/novelsQuery"
 import CircularProgress from '@mui/material/CircularProgress';
 import { useRouter } from 'next/router'
 // import { getServerSideProps } from '../../lib/getServerSideProps'
@@ -53,11 +54,11 @@ export const getServerSideProps = withIronSessionSsr(
 function Category() {
     const categoriesQuery = useQuery(GET_CATEGORIES_QUERY);
 
+    const [searchParams, setSearchParams] = React.useState({order_by: {created_at: "asc"}, content: "", category: "全て", offset: 0, limit: 10})
+
     const [fetchMoreLoading, setFetchMoreLoading] = React.useState(false)
 
-    const [searchParams, setSearchParams] = React.useState({order_by: {created_at: "asc"}, content: "", category: "全て", offset: 0, limit: 10, user_id: "HXeMh86h6qfIDqLnXEaigHTF3O23"})
-
-    const novelsQuery = useQuery(GET_AI_NOVEL_BY_SEARCH(searchParams.content, searchParams.category), {
+    const novelsQuery = useQuery(GET_EDITED_NOVEL_BY_SEARCH(searchParams.content, searchParams.category), {
         variables: searchParams,
         onError: (error) => {
             toast.error("データの取得に失敗しました。");
@@ -66,9 +67,8 @@ function Category() {
     });
 
 
-
     const categories = categoriesQuery.data === undefined ? [] : categoriesQuery.data.categories;
-    const novels = novelsQuery.data === undefined ? [] : novelsQuery.data.novels;
+    const novels = novelsQuery.data === undefined ? [] : novelsQuery.data.edited_novels;
 
     const handleClick = (e) => {
         const text = e.target.innerText;
@@ -80,7 +80,7 @@ function Category() {
         if (value === "created_at") {
             setSearchParams(prevState => ({ ...prevState, order_by: {created_at: "asc"} }));
         } else if (value === "favorite") {
-            setSearchParams(prevState => ({ ...prevState, order_by: {novels_users_favorites_aggregate: {count: "desc"}} }));
+            // setSearchParams(prevState => ({ ...prevState, order_by: {novels_users_favorites_aggregate: {count: "desc"}} }));
         } else if (value === "read_later") {
             setSearchParams(prevState => ({ ...prevState, order_by: {read_later: "asc"} }));
         } else {
@@ -93,18 +93,16 @@ function Category() {
         setSearchParams(prevState => ({ ...prevState, content: value }));
     }
 
-    
-
     const handleNovelsClick = (e) => {
         setFetchMoreLoading(true)
         novelsQuery.fetchMore({
             variables: {
-              offset: novelsQuery.data.novels.length, // 現在のアイテム数から新しいオフセットを計算する
+              offset: novelsQuery.data.edited_novels.length, // 現在のアイテム数から新しいオフセットを計算する
             },
             updateQuery: (prev, { fetchMoreResult }) => {
               if (!fetchMoreResult) return prev;
               return {
-                novels: [...prev.novels, ...fetchMoreResult.novels],
+                edited_novels: [...prev.edited_novels, ...fetchMoreResult.edited_novels],
               };
             },
             onError: (error) => {
@@ -114,12 +112,12 @@ function Category() {
             },
           }).then(() => {
             setFetchMoreLoading(false)
-          });
+          })
     }
 
     return (
         <Box>
-            <TopBar name={"AI小説"} />
+            <TopBar name={"編集小説"} />
             <Box>
                 <Box>
                     {
@@ -175,7 +173,7 @@ function Category() {
             <Box sx={{ flexGrow: 1 }}>
                 <Grid item xs={12} sx={{ textAlign: "center", margin: 5 }}>
                     <Button variant="outlined" color="inherit" style={{ backgroudColor: "black" }} size="large" onClick={handleNovelsClick}>
-                        {
+                    {
                             fetchMoreLoading ?
                             <CircularProgress />
                             :

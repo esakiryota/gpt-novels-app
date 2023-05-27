@@ -15,6 +15,8 @@ import Link from 'next/link';
 import { getServerSideProps } from '../../lib/getServerSideProps'
 import { GET_USERS_ONE_BY_ID_FOR_PROFILE } from '../../lib/graphql/query/usersQuery'
 import { GET_NOVEL_BY_USER_QUERY } from '../../lib/graphql/query/novelsQuery'
+import { GET_EDITED_NOVEL_BY_USER_QUERY } from '../../lib/graphql/query/editedNovelsQuery'
+import { DELETE_EDITED_NOVELS_ONE_MUTATION } from '../../lib/graphql/mutation/editedNovelsMutation'
 import { DELETE_NOVELS_ONE_MUTATION } from '../../lib/graphql/mutation/novelsMutation'
 import { useQuery, useMutation } from "@apollo/client";
 import CircularProgress from '@mui/material/CircularProgress';
@@ -101,45 +103,18 @@ function NovelContent(props) {
     )
 }
 
-function ProfileNovels({user_pk, profile}) {
-    const router = useRouter();
-    const limit = 4; // 1ページあたりのアイテム数
-    const [offset, setOffset] = React.useState(0);
-    const [delete_novels_by_pk, { data }] = useMutation(DELETE_NOVELS_ONE_MUTATION);
-
-    const novelsQuery = useQuery(
-        GET_NOVEL_BY_USER_QUERY,
-        { 
-            variables: { limit, offset, user_pk} ,
-            fetchPolicy: 'network-only'
-        }
-    )
-
-    const handleDeleteClick = async (pk) => {
-        delete_novels_by_pk({
-            variables: {pk},
-            onError: (error) => {
-                toast.error("データの更新に失敗しました。");
-                console.error(error);
-            },
-            onCompleted: () => {
-                toast.success("小説を削除しました。");
-                novelsQuery.refetch();
-            }
-        })
-    }
-
-
+function ProfileNovelsComponent({loading, novels, limit, offset, handleDeleteClick, setOffset, title}) {
+    console.log(novels)
     return (
         <>
-        <TopBar name={"投稿した小説"} />
+        <TopBar name={title} />
         {
-            novelsQuery.loading ?
+            loading ?
             <CircularProgress/>
             :
             <>
             <Paper sx={{ width: "100%" }}>
-            {novelsQuery.data.novels.map((value, index) => (
+            {novels.map((value, index) => (
                 <>
                     <Grid style={{ display: 'flex', padding: 10, margin: 3 }}>
                         <Grid container sx={{ marginLeft: 3, fontWeight: "bold" }}>
@@ -149,7 +124,8 @@ function ProfileNovels({user_pk, profile}) {
                                 </Typography>
                             </Grid>
                             <Grid item xs={4} md={4} sx={{ textAlign: "right" }}>
-                                    <><Link href={`/profile/novel/update/${value["pk"]}`}><ModeEditIcon /></Link><DeleteIcon onClick={(e) => handleDeleteClick(value["pk"])} /></>
+                                {title === "投稿した小説" && <><Link href={`/profile/novel/update/${value["pk"]}`}><ModeEditIcon /></Link><DeleteIcon onClick={(e) => handleDeleteClick(value["pk"])} /></>}
+                                {title === "編集した小説" && <><Link href={`/profile/edited-novel/update/${value["pk"]}`}><ModeEditIcon /></Link><DeleteIcon onClick={(e) => handleDeleteClick(value["pk"])} /></>}
                             </Grid>
                             <Grid item xs={12} md={12}>
                                 <Typography variant="h5" component="div">
@@ -180,15 +156,15 @@ function ProfileNovels({user_pk, profile}) {
         <Grid item xs={12} sx={{ textAlign: "center", margin: 5 }}>
             <Button variant="outlined" color="inherit" style={{ backgroudColor: "black" }} size="large" onClick={() => setOffset(offset - limit)} disabled={offset === 0}>
                 {
-        novelsQuery.loading ?
+        loading ?
         <CircularProgress />
         :
         <>前</>
     }
             </Button>
-            <Button variant="outlined" color="inherit" style={{ backgroudColor: "black" }} size="large" onClick={() => setOffset(offset + limit)} disabled={novelsQuery.data.novels.length < limit}>
+            <Button variant="outlined" color="inherit" style={{ backgroudColor: "black" }} size="large" onClick={() => setOffset(offset + limit)} disabled={novels.length < limit}>
                 {
-        novelsQuery.loading ?
+        loading ?
         <CircularProgress />
         :
         <>次</>
@@ -203,52 +179,95 @@ function ProfileNovels({user_pk, profile}) {
     )
 }
 
-function ProfileComments(props) {
+function ProfileNovels({user_pk, novelType}) {
+    const router = useRouter();
+    const limit = 4; // 1ページあたりのアイテム数
+    const [offset, setOffset] = React.useState(0);
+    const [delete_novels_by_pk, { data }] = useMutation(DELETE_NOVELS_ONE_MUTATION);
+    const [delete_edited_novels_by_pk, { data: editedNovelData }] = useMutation(DELETE_EDITED_NOVELS_ONE_MUTATION)
+
+    const novelsQuery = useQuery(
+        GET_NOVEL_BY_USER_QUERY,
+        { 
+            variables: { limit, offset, user_pk} ,
+            fetchPolicy: 'network-only'
+        }
+    )
+
+    const editedNovelsQuery = useQuery(
+        GET_EDITED_NOVEL_BY_USER_QUERY,
+        {
+            variables: { limit, offset, user_pk} ,
+            fetchPolicy: 'network-only'
+        }
+    )
+
+    // const [novelsQuery,  setNovelsQuery] = React.useState(initNovelsQuery)
+
+    if (novelType === 0) {
+
+    }
+
+    const handleNovelsDeleteClick = async (pk) => {
+        delete_novels_by_pk({
+            variables: {pk},
+            onError: (error) => {
+                toast.error("データの更新に失敗しました。");
+                console.error(error);
+            },
+            onCompleted: () => {
+                toast.success("小説を削除しました。");
+                novelsQuery.refetch();
+            }
+        })
+    }
+
+    const handleEditedNovelsDeleteClick = async (pk) => {
+        delete_edited_novels_by_pk({
+            variables: {pk},
+            onError: (error) => {
+                toast.error("データの更新に失敗しました。");
+                console.error(error);
+            },
+            onCompleted: () => {
+                toast.success("小説を削除しました。");
+                editedNovelsQuery.refetch();
+            }
+        })
+    }
+
+    console.log(novelsQuery.loading)
+
     return (
         <>
-        <TopBar name={"投稿したコメント"} />
-       
-        <Paper sx={{ width: "100%" }}>
-        {props.comments.map((value, index) => (
-            <>
-                <Grid style={{ display: 'flex', padding: 10, margin: 3 }}>
-                    <Grid container sx={{ marginLeft: 3, fontWeight: "bold" }}>
-                        <Grid item xs={8} md={8}>
-                            <Typography variant="body2" color="text.secondary">
-                            <StrToDate date={value["created_at"]} />
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={4} md={4}>
-                        <Typography >
-                                <Link href={`/novel/${ value["novel"]["pk"]}`} style={{textDecoration: "none", color: "black"}}>{value["novel"]["title"]}へ</Link>
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={12} md={12}>
-                            <Typography variant="h5" component="div">
-                                {value["title"]}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={12} md={12} sx={{ textAlign: "left" }}>
-                            <Typography variant="body2">
-                               <NovelContent content={value["content"]} />
-                            </Typography>
-                        </Grid>
-
-                    </Grid>
-
-                </Grid>
-                <Divider />
-            </>
-        ))}
-
-    </Paper>
+        {novelType === 0 && 
+         <>
+        {
+            novelsQuery.loading ?
+            <></>
+            :
+            <ProfileNovelsComponent loading={novelsQuery.loading} novels={novelsQuery.data?.novels} limit={limit} offset={offset} handleDeleteClick={handleNovelsDeleteClick} setOffset={setOffset} title={"投稿した小説"}/>
+        }
+        </>
+        }
+        {novelType === 1 && 
+        <>
+        {
+        editedNovelsQuery.loading ?
+        <></>
+        :
+            <ProfileNovelsComponent loading={editedNovelsQuery.loading} novels={editedNovelsQuery.data?.edited_novels} limit={limit} offset={offset} handleDeleteClick={handleEditedNovelsDeleteClick} setOffset={setOffset} title={"編集した小説"}/>
+    }
     </>
+}
+        </>
     )
 }
 
 
 export default function Profile({user}) {
     const pk = user.pk
+    const [novelType, setNovelType] = React.useState(0);
     const profile = useQuery(
         GET_USERS_ONE_BY_ID_FOR_PROFILE, 
         { 
@@ -259,6 +278,18 @@ export default function Profile({user}) {
                 console.error(error);
             },
         })
+        const handleClick = (e) => {
+            const text = e.target.innerText;
+            if (text === "投稿した小説") {
+                setNovelType(0)
+            } else if (text === "編集した小説") {
+                setNovelType(1)
+            } else if (text === "いいねした小説") {
+                setNovelType(2)
+            } else if (text === "コメントした小説") {
+                setNovelType(3)
+            }
+        }
 
 
     
@@ -271,12 +302,18 @@ export default function Profile({user}) {
                     :
                     <ProfileCard user={profile.data?.users[0]}/>
                     }
+                    <Paper sx={{ width: "100%", padding: 3 }}>
+        <Chip label={"投稿した小説"} variant={novelType === 0 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
+        <Chip label={"編集した小説"} variant={novelType === 1 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
+        <Chip label={"いいねした小説"} variant={novelType === 2 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
+        <Chip label={"コメントした小説"} variant={novelType === 3 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
+    </Paper>
                 </Grid>
                 <Grid item xs={12} md={8} style={{}}>
                     {profile.loading ?
                     <CircularProgress />
                     :
-                    <ProfileNovels user_pk={pk} />
+                    <ProfileNovels user_pk={pk} novelType={novelType} />
                     }
                 </Grid>
             </Grid>

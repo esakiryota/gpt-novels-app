@@ -35,6 +35,7 @@ const sidebar_list = [
     ['TOP', '/'],
     ['投稿小説', "/novels/"],
     ['AI小説', "/ai-novels/"],
+    ['編集小説', "/edited-novels/"],
 ]
 
 const default_list = [
@@ -258,7 +259,7 @@ function Root({ children, user, auth }) {
         <>
             <Toolbar>
                 <Grid>
-                    <Search sx={{}}>
+                    {/* <Search sx={{}}>
                         <SearchIconWrapper>
                             <SearchIcon />
                         </SearchIconWrapper>
@@ -267,7 +268,7 @@ function Root({ children, user, auth }) {
                             inputProps={{ 'aria-label': 'search' }}
                             onKeyDown={handleKeyDown}
                         />
-                    </Search>
+                    </Search> */}
                 </Grid>
 
             </Toolbar>
@@ -341,7 +342,7 @@ function Root({ children, user, auth }) {
                     <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
                     <img src="/logo.png" style={{height: 40}}/>
                     </Typography>
-                    <Search sx={{ display: { xs: 'none', sm: 'block' } }}>
+                    {/* <Search sx={{ display: { xs: 'none', sm: 'block' } }}>
                         <SearchIconWrapper>
                             <SearchIcon />
                         </SearchIconWrapper>
@@ -350,7 +351,7 @@ function Root({ children, user, auth }) {
                             inputProps={{ 'aria-label': 'search' }}
                             onKeyDown={handleKeyDown}
                         />
-                    </Search>
+                    </Search> */}
                     <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                         {sidebar_list.map((value, index) => (
                             <Button color="inherit"><Link href={value[1]} style={{ textDecoration: 'none', color: "black" }}>{value[0]}</Link></Button>

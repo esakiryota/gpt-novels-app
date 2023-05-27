@@ -19,7 +19,7 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import { useRouter } from 'next/router'
-import { GET_NOVEL_BY_PK_QUERY } from "../../lib/graphql/query/novelsQuery"
+import { GET_EDITED_NOVEL_BY_PK_QUERY } from "../../lib/graphql/query/editedNovelsQuery"
 import { GET_USERS_ONE_BY_PK_QUERY } from "../../lib/graphql/query/usersQuery"
 import { GET_USERS_FAVORITES_ONE } from "../../lib/graphql/query/usersFavoritesQuery"
 import { INSERT_USERS_FAVORITES_ONE_MUTATION, DELETE_USERS_FAVORITES_ONE_MUTATION } from "../../lib/graphql/mutation/usersFavoritesMutation"
@@ -30,6 +30,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useQuery, useMutation } from "@apollo/client"
 import { withIronSessionSsr } from "iron-session/next";
 import { ironOptions } from "../../lib/ironSession/config";
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import Avatar from '@mui/material/Avatar';
 
 export const getServerSideProps = withIronSessionSsr(
     async function getServerSideProps({ req }) {
@@ -69,7 +71,7 @@ const router = useRouter()
 const { pk } = router.query
 
 const {data , loading, refetch} = useQuery(
-  GET_NOVEL_BY_PK_QUERY, 
+  GET_EDITED_NOVEL_BY_PK_QUERY, 
   { variables: { pk },
   onError: (error) => {
     toast.error("データの取得に失敗しました。");
@@ -83,116 +85,124 @@ const {data , loading, refetch} = useQuery(
 
 
 
-const novel = data === undefined ? {} : data?.novels_by_pk;
+const novel = data === undefined ? {} : data?.edited_novels_by_pk;
 
-const usersFavoritesQuery = user === undefined ? false : useQuery(
-  GET_USERS_FAVORITES_ONE, 
-  {
-    variables: {user_pk: user.pk, novel_pk: pk},
-    onError: (error) => {
-      toast.error("データの取得に失敗しました。");
-      console.error(error)
-    },
-    onCompleted: (data) => {
-      console.log(data)
-    }
-  })
+// const usersFavoritesQuery = user === undefined ? false : useQuery(
+//   GET_USERS_FAVORITES_ONE, 
+//   {
+//     variables: {user_pk: user.pk, novel_pk: pk},
+//     onError: (error) => {
+//       toast.error("データの取得に失敗しました。");
+//       console.error(error)
+//     },
+//     onCompleted: (data) => {
+//       console.log(data)
+//     }
+//   })
 
 
-  const favoritePk = usersFavoritesQuery.loading || usersFavoritesQuery.data?.users_favorite.length === 0 ? 0 : usersFavoritesQuery.data?.users_favorite[0].pk;
+//   const favoritePk = usersFavoritesQuery.loading || usersFavoritesQuery.data?.users_favorite.length === 0 ? 0 : usersFavoritesQuery.data?.users_favorite[0].pk;
 
-  const [editMode, setEditMode] = React.useState(-1)
-  const [commentEditValue, setCommentEditValue] = React.useState(user === undefined ? false : { "title": "", "comment": "", "user_pk": user.pk, "novel_pk": pk, "user_id": user.id })
+//   const [editMode, setEditMode] = React.useState(-1)
+//   const [commentEditValue, setCommentEditValue] = React.useState(user === undefined ? false : { "title": "", "comment": "", "user_pk": user.pk, "novel_pk": pk, "user_id": user.id })
 
-  const [insert_comments_one, { data: commentData }] = useMutation(INSERT_COMMENT_ONE_MUTATION);
+//   const [favoriteBoolean, setFavoriteBoolean] = React.useState(usersFavoritesQuery.data?.users_favorite.length)
 
-  const onClickCreateComment = (e) => {
-    insert_comments_one({
-      variables: commentEditValue,
-      onError: (error) => {
-          toast.error("コメントに失敗しました。");
-          console.error(error);
-      },
-      onCompleted: () => {
-          toast.success("コメントしました。");
-          refetch();
-      }
-  })
-  }
+//   const [insert_comments_one, { data: commentData }] = useMutation(INSERT_COMMENT_ONE_MUTATION);
 
-  const [delete_comments_by_pk, { data: deletedCommentData }] = useMutation(DELETE_COMMENT_ONE_MUTATION);
+//   const onClickCreateComment = (e) => {
+//     insert_comments_one({
+//       variables: commentEditValue,
+//       onError: (error) => {
+//           toast.error("コメントに失敗しました。");
+//           console.error(error);
+//       },
+//       onCompleted: () => {
+//           toast.success("コメントしました。");
+//           refetch();
+//       }
+//   })
+//   }
 
-  const handleDeleteClick = (pk) => {
-  delete_comments_by_pk({
-    variables: { pk },
-    onError: (error) => {
-        toast.error("データの更新に失敗しました。");
-        console.error(error);
-    },
-    onCompleted: () => {
-        toast.success("削除しました。");
-        refetch();
-    }
-})
-  }
+//   const [delete_comments_by_pk, { data: deletedCommentData }] = useMutation(DELETE_COMMENT_ONE_MUTATION);
 
-  const handleEditClick = (pk, title, comment) => {
-    setEditMode(pk)
-    setCommentEditValue({...commentEditValue, "title": title, "comment": comment })
-  }
+//   const handleDeleteClick = (pk) => {
+//   delete_comments_by_pk({
+//     variables: { pk },
+//     onError: (error) => {
+//         toast.error("データの更新に失敗しました。");
+//         console.error(error);
+//     },
+//     onCompleted: () => {
+//         toast.success("削除しました。");
+//         refetch();
+//     }
+// })
+//   }
 
-  const [update_comments_by_pk, { data: updatedCommentData }] = useMutation(UPDATE_COMMENT_ONE_MUTATION);
+//   const handleEditClick = (pk, title, comment) => {
+//     setEditMode(pk)
+//     setCommentEditValue({...commentEditValue, "title": title, "comment": comment })
+//   }
 
-  const onClickUpdateComment = (pk) => {
-    console.log(commentEditValue)
-    update_comments_by_pk({
-      variables: {pk: pk, user_id: commentEditValue.user_id, user_pk: commentEditValue.user_pk, title: commentEditValue.title, comment:commentEditValue.comment, novel_pk: commentEditValue.novel_pk },
-      onError: (error) => {
-          toast.error("コメントに失敗しました。");
-          console.error(error);
-      },
-      onCompleted: () => {
-          toast.success("コメントしました。");
-          refetch();
-      }
-  })
-  }
+//   const [update_comments_by_pk, { data: updatedCommentData }] = useMutation(UPDATE_COMMENT_ONE_MUTATION);
 
-  const handleEditCancelClick = (pk) => {
-    setEditMode(-1)
-  }
+//   const onClickUpdateComment = (pk) => {
+//     console.log(commentEditValue)
+//     update_comments_by_pk({
+//       variables: {pk: pk, user_id: commentEditValue.user_id, user_pk: commentEditValue.user_pk, title: commentEditValue.title, comment:commentEditValue.comment, novel_pk: commentEditValue.novel_pk },
+//       onError: (error) => {
+//           toast.error("コメントに失敗しました。");
+//           console.error(error);
+//       },
+//       onCompleted: () => {
+//           toast.success("コメントしました。");
+//           refetch();
+//       }
+//   })
+//   }
 
-  const [insert_users_favorite_one, { data: usersFavoriteData }] = useMutation(INSERT_USERS_FAVORITES_ONE_MUTATION);
+//   const handleEditCancelClick = (pk) => {
+//     setEditMode(-1)
+//   }
 
-  const handleFavoriteClick = (e) => {
-    insert_users_favorite_one({
-    variables: {user_pk: user.pk, novel_pk: pk, user_id: user.id},
-    onError: (error) => {
-        toast.error("データの更新に失敗しました。");
-        console.error(error);
-    },
-    onCompleted: () => {
-        toast.success("いいねしました。");
-        usersFavoritesQuery.refetch();
-    }
-})
-  }
+//   const [insert_users_favorite_one, { data: usersFavoriteData }] = useMutation(INSERT_USERS_FAVORITES_ONE_MUTATION);
 
-  const [delete_users_favorite_by_pk, { data: deletedUsersFavoriteData }] = useMutation(DELETE_USERS_FAVORITES_ONE_MUTATION);
+//   const handleFavoriteClick = (e) => {
+//     setFavoriteBoolean(true)
+//     insert_users_favorite_one({
+//     variables: {user_pk: user.pk, novel_pk: pk, user_id: user.id},
+//     onError: (error) => {
+//         toast.error("データの更新に失敗しました。");
+//         setFavoriteBoolean(false)
+//         console.error(error);
+//     },
+//     onCompleted: () => {
+//         toast.success("いいねしました。");
+//         usersFavoritesQuery.refetch();
+//     }
+// })
+//   }
 
-  const handleDeleteFavoriteClick = (pk) => {
-    delete_users_favorite_by_pk({
-    variables: { pk: favoritePk },
-    onError: (error) => {
-        toast.error("データの更新に失敗しました。");
-        console.error(error);
-    },
-    onCompleted: () => {
-        toast.success("いいね削除しました。");
-        usersFavoritesQuery.refetch();
-    }
-  })
-  }
+//   const [delete_users_favorite_by_pk, { data: deletedUsersFavoriteData }] = useMutation(DELETE_USERS_FAVORITES_ONE_MUTATION);
+
+//   const handleDeleteFavoriteClick = (pk) => {
+//     setFavoriteBoolean(false)
+//     delete_users_favorite_by_pk({
+//     variables: { pk: favoritePk },
+//     onError: (error) => {
+//         setFavoriteBoolean(true)
+//         toast.error("データの更新に失敗しました。");
+//         console.error(error);
+//     },
+//     onCompleted: () => {
+//         toast.success("いいね削除しました。");
+//         usersFavoritesQuery.refetch();
+//     }
+//   })
+//   }
+
+//   console.log(data)
 
 
   return (
@@ -226,9 +236,10 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
         </Grid>
         <Grid>
           <Typography sx={{ fontSize: 14, padding: 4, margin: 3 }} color="text.secondary" gutterBottom  component="div">
+            <Link href={"/novels/" + novel["original_pk"] }>原文</Link>
           </Typography>
         </Grid>
-        <Grid>
+        {/* <Grid>
           <Typography sx={{ fontSize: 14, padding: 4, margin: 3 }} color="text.secondary" gutterBottom>
             {user &&
             <>
@@ -238,7 +249,7 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                 :
                 <>
                 {
-                usersFavoritesQuery.data.users_favorite.length ?
+                favoriteBoolean ?
                   <IconButton edge="end" aria-label="comments"><FavoriteBorderIcon onClick={(e) => handleDeleteFavoriteClick(e)} sx={{ color: "pink" }} /></IconButton>
                   :
                   <IconButton edge="end" aria-label="comments"><FavoriteBorderIcon onClick={(e) => handleFavoriteClick(e)} /></IconButton>
@@ -248,11 +259,8 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
             </>
             }
           </Typography>
-          <Typography sx={{ fontSize: 14, padding: 4, margin: 3 }} color="text.secondary">
-            <Link href={"/profile/edited-novel/create/" + novel["pk"]}>編集する</Link>
-          </Typography>
-        </Grid>
-        </>
+        </Grid> */}
+        {/* </>
         }
         <Divider />
         <Grid>
@@ -283,6 +291,13 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                             </>
         
                           }>
+                            <Link href={"/profile/"+value["comments_user"]["pk"]} style={{textDecoration: "none"}}>
+                            <ListItemAvatar>
+                              
+          <Avatar alt={value["comments_user"]["username"]} src="/static/images/avatar/1.jpg" />
+          
+        </ListItemAvatar>
+        </Link>
                             <ListItemText
                               primary={value["title"]}
                               secondary={
@@ -293,7 +308,6 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                                     variant="body2"
                                     color="text.primary"
                                   >
-                                    {value["comments_user"]["username"]} -
                                   </Typography>
                                   {value["comment"]}
                                 </React.Fragment>
@@ -318,12 +332,14 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                               sx={{ margin: 3 }}
                               onChange={(e) => setCommentEditValue({ ...commentEditValue, "comment": e.target.value })}
                             />
-                            <Button variant="contained" endIcon={<SendIcon />} sx={{ margin: 3 }} onClick={(e) => onClickUpdateComment(value["pk"])}>
+                            <Grid sx={{textAlign: "center"}}>
+                            <Button variant="contained"  sx={{ margin: 3, width: '10%', height: "20%" }} onClick={(e) => onClickUpdateComment(value["pk"])}>
                               保存
                             </Button>
-                            <Button variant="contained" endIcon={<SendIcon />} sx={{ margin: 3 }} onClick={(e) => handleEditCancelClick(e)}>
+                            <Button variant="contained"  sx={{ margin: 3, width: '10%', height: "20%" }} onClick={(e) => handleEditCancelClick(e)}>
                               閉じる
                             </Button>
+                            </Grid>
                           </FormControl>
         
                         }
@@ -357,8 +373,12 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                 </>
             }
             </>
+            */
           }
-                </Grid>
+          {/* </Grid> */}
+          </>
+        }
+               
       </Paper>
       <Toaster />
     </>

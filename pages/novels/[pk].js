@@ -257,6 +257,7 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
               }
             </>
             }
+            
           </Typography>
         </Grid>
         </>

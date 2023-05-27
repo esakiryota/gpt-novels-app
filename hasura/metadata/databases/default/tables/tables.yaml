@@ -1,5 +1,6 @@
 - "!include public_categories.yaml"
 - "!include public_comments.yaml"
+- "!include public_edited_novels.yaml"
 - "!include public_novels.yaml"
 - "!include public_users.yaml"
 - "!include public_users_favorite.yaml"

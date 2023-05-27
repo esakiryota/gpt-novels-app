@@ -24,7 +24,9 @@ import toast, { Toaster } from 'react-hot-toast'
 
 import { withIronSessionSsr } from "iron-session/next";
 import { ironOptions } from "../../lib/ironSession/config"; 
-import { auth } from "../../lib/firebase/checkAuthToken"
+import { auth } from "../../lib/firebase/checkAuthToken";
+
+import { GET_NOVEL_BY_USER_QUERY } from '../../lib/graphql/query/novelsQuery'
 
 
 export const getServerSideProps = withIronSessionSsr(
@@ -79,10 +81,10 @@ function FollowButton({user_pk, user_id, pk, id}) {
         }
     )
 
-    const [followBoolean, setFollowBoolean] = React.useState(checkFollowQuery.data?.users_relationships.length)
-
+    const [followBoolean, setFollowBoolean] = React.useState(checkFollowQuery.data?.users_relationships.length > 0)
+    
     const [insert_users_relationships_one, { data: usersRelationshipsData }] = useMutation(INSERT_USERS_RELATIONSHIPS_ONE_MUTATION);
-
+    
     const follow = checkFollowQuery.loading ? false : checkFollowQuery.data.users_relationships.length;
     const handleFollow = (e) => {
         setFollowBoolean(true)
@@ -216,6 +218,8 @@ function NovelContent(props) {
 function ProfileNovels(props) {
     const router = useRouter();
     const [delete_novels_by_pk, { data: deletedNovelsData }] = useMutation(DELETE_NOVELS_ONE_MUTATION);
+    const limit = 4; // 1ページあたりのアイテム数
+    const [offset, setOffset] = React.useState(0);
     const handleDeleteClick = async (pk) => {
         delete_novels_by_pk(
             {
@@ -231,12 +235,29 @@ function ProfileNovels(props) {
              });
     }
 
+    const user_pk = props.profile.data?.users[0].pk
+
+    const novelsQuery = useQuery(
+        GET_NOVEL_BY_USER_QUERY,
+        { 
+            variables: { limit, offset, user_pk} ,
+            fetchPolicy: 'network-only'
+        }
+    )
+
+    console.log(novelsQuery)
+
 
     return (
         <>
         <TopBar name={"投稿した小説"} />
+        {
+            novelsQuery.loading ?
+            <CircularProgress/>
+            :
+            <>
         <Paper sx={{ width: "100%" }}>
-            {props.novels.map((value, index) => (
+            {novelsQuery.data.novels.map((value, index) => (
                 <>
                     <Grid style={{ display: 'flex', padding: 10, margin: 3 }}>
                         <Grid container sx={{ marginLeft: 3, fontWeight: "bold" }}>
@@ -268,8 +289,29 @@ function ProfileNovels(props) {
                     <Divider />
                 </>
             ))}
-
         </Paper>
+        <Box sx={{ flexGrow: 1 }}>
+        <Grid item xs={12} sx={{ textAlign: "center", margin: 5 }}>
+            <Button variant="outlined" color="inherit" style={{ backgroudColor: "black" }} size="large" onClick={() => setOffset(offset - limit)} disabled={offset === 0}>
+                {
+        novelsQuery.loading ?
+        <CircularProgress />
+        :
+        <>前</>
+    }
+            </Button>
+            <Button variant="outlined" color="inherit" style={{ backgroudColor: "black" }} size="large" onClick={() => setOffset(offset + limit)} disabled={novelsQuery.data.novels.length < limit}>
+                {
+        novelsQuery.loading ?
+        <CircularProgress />
+        :
+        <>次</>
+    }
+            </Button>
+        </Grid>
+    </Box>
+    </>
+}
         </>
     )
 }

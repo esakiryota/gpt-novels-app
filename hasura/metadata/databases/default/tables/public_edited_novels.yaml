@@ -11,22 +11,38 @@ object_relationships:
   - name: user
     using:
       foreign_key_constraint_on: user_pk
+array_relationships:
+  - name: novels_comments
+    using:
+      foreign_key_constraint_on:
+        column: novel_pk
+        table:
+          name: edited_novels_comments
+          schema: public
+  - name: novels_users_favorites
+    using:
+      foreign_key_constraint_on:
+        column: edited_novel_pk
+        table:
+          name: users_edited_novel_favorite
+          schema: public
 insert_permissions:
   - role: user
     permission:
       check: {}
       columns:
-        - created_at
         - added_words
         - category_pk
+        - content
+        - created_at
+        - edited_percent
+        - editor_comment
         - original_pk
         - pk
         - removed_words
-        - user_pk
-        - content
-        - editor_comment
         - title
         - user_id
+        - user_pk
 select_permissions:
   - role: anonymous
     permission:
@@ -47,34 +63,36 @@ select_permissions:
   - role: user
     permission:
       columns:
-        - created_at
         - added_words
         - category_pk
+        - content
+        - created_at
+        - edited_percent
+        - editor_comment
         - original_pk
         - pk
         - removed_words
-        - user_pk
-        - content
-        - editor_comment
         - title
         - user_id
+        - user_pk
       filter: {}
       allow_aggregations: true
 update_permissions:
   - role: user
     permission:
       columns:
-        - created_at
         - added_words
         - category_pk
+        - content
+        - created_at
+        - edited_percent
+        - editor_comment
         - original_pk
         - pk
         - removed_words
-        - user_pk
-        - content
-        - editor_comment
         - title
         - user_id
+        - user_pk
       filter:
         user_id:
           _eq: X-Hasura-User-Id

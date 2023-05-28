@@ -202,12 +202,6 @@ function ProfileNovels({user_pk, novelType}) {
         }
     )
 
-    // const [novelsQuery,  setNovelsQuery] = React.useState(initNovelsQuery)
-
-    if (novelType === 0) {
-
-    }
-
     const handleNovelsDeleteClick = async (pk) => {
         delete_novels_by_pk({
             variables: {pk},
@@ -235,8 +229,6 @@ function ProfileNovels({user_pk, novelType}) {
             }
         })
     }
-
-    console.log(novelsQuery.loading)
 
     return (
         <>
@@ -305,8 +297,8 @@ export default function Profile({user}) {
                     <Paper sx={{ width: "100%", padding: 3 }}>
         <Chip label={"投稿した小説"} variant={novelType === 0 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
         <Chip label={"編集した小説"} variant={novelType === 1 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
-        <Chip label={"いいねした小説"} variant={novelType === 2 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
-        <Chip label={"コメントした小説"} variant={novelType === 3 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
+        {/* <Chip label={"いいねした小説"} variant={novelType === 2 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
+        <Chip label={"コメントした小説"} variant={novelType === 3 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} /> */}
     </Paper>
                 </Grid>
                 <Grid item xs={12} md={8} style={{}}>

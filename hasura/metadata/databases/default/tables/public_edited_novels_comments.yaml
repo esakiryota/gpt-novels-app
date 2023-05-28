@@ -1,0 +1,68 @@
+table:
+  name: edited_novels_comments
+  schema: public
+object_relationships:
+  - name: comments_user
+    using:
+      foreign_key_constraint_on: user_pk
+  - name: edited_novels_comments_edited_novel
+    using:
+      foreign_key_constraint_on: novel_pk
+insert_permissions:
+  - role: user
+    permission:
+      check: {}
+      columns:
+        - created_at
+        - novel_pk
+        - pk
+        - user_pk
+        - comment
+        - title
+        - user_id
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - created_at
+        - novel_pk
+        - pk
+        - user_pk
+        - comment
+        - title
+        - user_id
+      filter: {}
+      allow_aggregations: true
+  - role: user
+    permission:
+      columns:
+        - created_at
+        - novel_pk
+        - pk
+        - user_pk
+        - comment
+        - title
+        - user_id
+      filter: {}
+      allow_aggregations: true
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - created_at
+        - novel_pk
+        - pk
+        - user_pk
+        - comment
+        - title
+        - user_id
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      check: null
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id

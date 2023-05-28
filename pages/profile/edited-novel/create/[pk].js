@@ -24,26 +24,47 @@ import { INSERT_EDITED_NOVELS_ONE_MUTATION } from "../../../../lib/graphql/mutat
 
 export { getServerSideProps };
 
+function calculateMatchRate(str1, str2) {
+  const len1 = str1.length;
+  const len2 = str2.length;
+  const matrix = [];
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
+  if (len1 === 0) return len2;
+  if (len2 === 0) return len1;
 
-function getStyles(name, personName, theme) {
-  return {
-    fontWeight:
-      personName.indexOf(name) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
-  };
+  for (let i = 0; i <= len1; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= len2; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= len1; i++) {
+    for (let j = 1; j <= len2; j++) {
+      const cost = (str1[i - 1] !== str2[j - 1]) ? 1 : 0;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+
+  const distance = matrix[len1][len2];
+  const maxLength = Math.max(len1, len2);
+  const matchRate = ((maxLength - distance) / maxLength) * 100;
+
+  return 100 - matchRate;
 }
+
+// 例として "kitten" と "sitting" の一致率を計算する
+const str1 = "kitten";
+const str2 = "sitting";
+const matchRate = calculateMatchRate(str1, str2);
+
+console.log(`一致率: ${matchRate.toFixed(2)}%`);
+
 
 export default function CreateNovel({user}) {
   const router = useRouter();
@@ -62,9 +83,22 @@ export default function CreateNovel({user}) {
     );
   const [insert_edited_novels_one, { data }] = useMutation(INSERT_EDITED_NOVELS_ONE_MUTATION);
 
-  const [novelValues, setNovelValues] = React.useState({"user_pk": user.pk, "content": novelsQuery.loading ? "": novelsQuery.data?.novels_by_pk.content, "title": "", "category_pk": novelsQuery.loading ? 1 : novelsQuery.data?.novels_by_pk.category_pk, "user_id": user.id, "editor_comment": "", original_pk: pk});
+  const [novelValues, setNovelValues] = React.useState(
+    {
+      "user_pk": user.pk, 
+      "content": novelsQuery.loading ? "": novelsQuery.data?.novels_by_pk.content, 
+      "title": "", "category_pk": novelsQuery.loading ? 1 : novelsQuery.data?.novels_by_pk.category_pk, 
+      "user_id": user.id, 
+      "editor_comment": "", 
+      "original_pk": pk,
+      "edited_percent": 0.0,
+    }
+    );
 
-  const onClickCreateNovel = async (e) => {
+  const onClickCreateNovel = (e) => {
+    const edited_percent = calculateMatchRate(novelsQuery.data?.novels_by_pk.content, novelValues.content)
+    console.log(edited_percent)
+    novelValues.edited_percent = edited_percent;
     insert_edited_novels_one({
         variables: novelValues,
         onError: (error) => {

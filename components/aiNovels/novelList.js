@@ -17,6 +17,7 @@ import Avatar from '@mui/material/Avatar';
 import PersonIcon from '@mui/icons-material/Person';
 import Link from 'next/link';
 import Divider from '@mui/material/Divider';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 
 function NovelContent(props) {
     const content = props.content;
@@ -43,7 +44,7 @@ function StrToDate(props) {
 }
 
 export default function NovelGridList(props) {
-
+    console.log(props.novels)
     return (
         <Grid container spacing={3}>
             {props.novels.map((value, index) => (
@@ -81,6 +82,7 @@ export default function NovelGridList(props) {
                             </CardContent>
                             <CardActions>
                                 <FavoriteIcon />{value.novels_users_favorites_aggregate.aggregate.count}
+                                <ChatBubbleOutlineIcon />{value.novels_comments_aggregate.aggregate.count}
                             </CardActions>
                         </Card>
                     </Link>

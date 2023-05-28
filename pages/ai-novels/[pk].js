@@ -30,6 +30,11 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useQuery, useMutation } from "@apollo/client"
 import { withIronSessionSsr } from "iron-session/next";
 import { ironOptions } from "../../lib/ironSession/config";
+import Modal from '@mui/material/Modal';
+import Fab from '@mui/material/Fab';
+import CommentIcon from '@mui/icons-material/Comment';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import Avatar from '@mui/material/Avatar';
 
 export const getServerSideProps = withIronSessionSsr(
     async function getServerSideProps({ req }) {
@@ -64,6 +69,18 @@ function StrToDate(props) {
     )
 }
 
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
 export default function Novel({user}) {
 const router = useRouter()
 const { pk } = router.query
@@ -80,6 +97,10 @@ const {data , loading, refetch} = useQuery(
   }
 },
   );
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
 
 
@@ -116,6 +137,7 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
       onCompleted: () => {
           toast.success("コメントしました。");
           refetch();
+          handleClose();
       }
   })
   }
@@ -283,23 +305,29 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                             </>
         
                           }>
-                            <ListItemText
-                              primary={value["title"]}
-                              secondary={
-                                <React.Fragment>
-                                  <Typography
-                                    sx={{ display: 'inline' }}
-                                    component="span"
-                                    variant="body2"
-                                    color="text.primary"
-                                  >
-                                    {value["comments_user"]["username"]} -
-                                  </Typography>
-                                  {value["comment"]}
-                                </React.Fragment>
-                              }
-                            />
-                          </ListItem>
+                            <Link href={"/profile/" + value["comments_user"]["pk"]} style={{ textDecoration: "none" }}>
+                                <ListItemAvatar>
+
+                                  <Avatar alt={value["comments_user"]["username"]} src="/static/images/avatar/1.jpg" />
+
+                                </ListItemAvatar>
+                              </Link>
+                              <ListItemText
+                                primary={value["title"]}
+                                secondary={
+                                  <React.Fragment>
+                                    <Typography
+                                      sx={{ display: 'inline' }}
+                                      component="span"
+                                      variant="body2"
+                                      color="text.primary"
+                                    >
+                                    </Typography>
+                                    {value["comment"]}
+                                  </React.Fragment>
+                                }
+                              />
+                            </ListItem>
                           :
                           <FormControl fullWidth>
                             <TextField
@@ -331,35 +359,51 @@ const usersFavoritesQuery = user === undefined ? false : useQuery(
                       </>
                     ))}
                   </List>
-                  <Grid container justifyContent="center">
-                  <FormControl fullWidth>
-                  <TextField
-                    id="outlined-multiline-flexible"
-                    label="タイトル"
-                    sx={{ margin: 3 }}
-                    defaultValue={commentEditValue["title"]}
-                    onChange={(e) => setCommentEditValue({ ...commentEditValue, "title": e.target.value })}
-                  />
-                  <TextField
-                    id="outlined-multiline-static"
-                    label="内容"
-                    multiline
-                    rows={4}
-                    defaultValue={commentEditValue["content"]}
-                    sx={{ margin: 3 }}
-                    onChange={(e) => setCommentEditValue({ ...commentEditValue, "comment": e.target.value })}
-                  />
-                </FormControl>
-                <Button variant="contained" sx={{ margin: 3, width: '25%', height: "25%" }} onClick={(e) => onClickCreateComment(e)}>
-                    コメント
-                  </Button>
-                  </Grid>
+                  <Modal
+                      open={open}
+                      onClose={handleClose}
+                      aria-labelledby="modal-modal-title"
+                      aria-describedby="modal-modal-description"
+                    >
+                      <Grid container justifyContent="center" sx={style}>
+                        <FormControl fullWidth>
+                          <TextField
+                            id="outlined-multiline-flexible"
+                            label="タイトル"
+                            sx={{ margin: 1 }}
+                            defaultValue={commentEditValue["title"]}
+                            onChange={(e) => setCommentEditValue({ ...commentEditValue, "title": e.target.value })}
+                          />
+                          <TextField
+                            id="outlined-multiline-static"
+                            label="内容"
+                            multiline
+                            rows={4}
+                            defaultValue={commentEditValue["content"]}
+                            sx={{ margin: 1 }}
+                            onChange={(e) => setCommentEditValue({ ...commentEditValue, "comment": e.target.value })}
+                          />
+                        </FormControl>
+                        <Grid sx={{ textAlign: "center" , width: "100%"}}>
+                        <Button variant="contained" sx={{ margin: 1, width: '30%', fontSize: "10px" }} onClick={(e) => onClickCreateComment(e)}>
+                          コメント
+                        </Button>
+                        <Button variant="contained" sx={{margin: 1, width: '30%', fontSize: "10px"}} onClick={(e) => handleClose()}>
+                          閉じる
+                        </Button>
+                        </Grid>
+                      
+                      </Grid>
+                    </Modal>
                 </>
             }
             </>
           }
                 </Grid>
       </Paper>
+      <Fab color="secondary" aria-label="edit"  onClick={handleOpen} style={{position: "fixed", bottom: 30, right: 30}}>
+        <CommentIcon />
+      </Fab>
       <Toaster />
     </>
   )

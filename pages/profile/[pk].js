@@ -27,6 +27,7 @@ import { ironOptions } from "../../lib/ironSession/config";
 import { auth } from "../../lib/firebase/checkAuthToken";
 
 import { GET_NOVEL_BY_USER_QUERY } from '../../lib/graphql/query/novelsQuery'
+import { GET_EDITED_NOVEL_BY_USER_QUERY } from '../../lib/graphql/query/editedNovelsQuery'
 
 
 export const getServerSideProps = withIronSessionSsr(
@@ -215,49 +216,18 @@ function NovelContent(props) {
     )
 }
 
-function ProfileNovels(props) {
-    const router = useRouter();
-    const [delete_novels_by_pk, { data: deletedNovelsData }] = useMutation(DELETE_NOVELS_ONE_MUTATION);
-    const limit = 4; // 1ページあたりのアイテム数
-    const [offset, setOffset] = React.useState(0);
-    const handleDeleteClick = async (pk) => {
-        delete_novels_by_pk(
-            {
-                variables: {pk},
-                onError: (error) => {
-                    toast.error("データの更新に失敗しました。");
-                    console.error(error);
-                },
-                onCompleted: () => {
-                    toast.success("小説を削除しました。");
-                    props.profile.refetch();
-                }
-             });
-    }
-
-    const user_pk = props.profile.data?.users[0].pk
-
-    const novelsQuery = useQuery(
-        GET_NOVEL_BY_USER_QUERY,
-        { 
-            variables: { limit, offset, user_pk} ,
-            fetchPolicy: 'network-only'
-        }
-    )
-
-    console.log(novelsQuery)
-
-
+function ProfileNovelsComponent({loading, novels, limit, offset, handleDeleteClick, setOffset, title}) {
+    console.log(novels)
     return (
         <>
-        <TopBar name={"投稿した小説"} />
+        <TopBar name={title} />
         {
-            novelsQuery.loading ?
+            loading ?
             <CircularProgress/>
             :
             <>
-        <Paper sx={{ width: "100%" }}>
-            {novelsQuery.data.novels.map((value, index) => (
+            <Paper sx={{ width: "100%" }}>
+            {novels.map((value, index) => (
                 <>
                     <Grid style={{ display: 'flex', padding: 10, margin: 3 }}>
                         <Grid container sx={{ marginLeft: 3, fontWeight: "bold" }}>
@@ -289,20 +259,21 @@ function ProfileNovels(props) {
                     <Divider />
                 </>
             ))}
+
         </Paper>
         <Box sx={{ flexGrow: 1 }}>
         <Grid item xs={12} sx={{ textAlign: "center", margin: 5 }}>
             <Button variant="outlined" color="inherit" style={{ backgroudColor: "black" }} size="large" onClick={() => setOffset(offset - limit)} disabled={offset === 0}>
                 {
-        novelsQuery.loading ?
+        loading ?
         <CircularProgress />
         :
         <>前</>
     }
             </Button>
-            <Button variant="outlined" color="inherit" style={{ backgroudColor: "black" }} size="large" onClick={() => setOffset(offset + limit)} disabled={novelsQuery.data.novels.length < limit}>
+            <Button variant="outlined" color="inherit" style={{ backgroudColor: "black" }} size="large" onClick={() => setOffset(offset + limit)} disabled={novels.length < limit}>
                 {
-        novelsQuery.loading ?
+        loading ?
         <CircularProgress />
         :
         <>次</>
@@ -310,6 +281,58 @@ function ProfileNovels(props) {
             </Button>
         </Grid>
     </Box>
+    </>
+
+        }
+        </>
+    )
+}
+
+function ProfileNovels({novelType}) {
+    const router = useRouter();
+    const { pk } = router.query;
+    const limit = 4; // 1ページあたりのアイテム数
+    const [offset, setOffset] = React.useState(0);
+
+    const user_pk = pk
+
+    const novelsQuery = useQuery(
+        GET_NOVEL_BY_USER_QUERY,
+        { 
+            variables: { limit, offset, user_pk} ,
+            fetchPolicy: 'network-only'
+        }
+    )
+
+    const editedNovelsQuery = useQuery(
+        GET_EDITED_NOVEL_BY_USER_QUERY,
+        {
+            variables: { limit, offset, user_pk} ,
+            fetchPolicy: 'network-only'
+        }
+    )
+
+
+    return (
+        <>
+        {novelType === 0 && 
+         <>
+        {
+            novelsQuery.loading ?
+            <></>
+            :
+            <ProfileNovelsComponent loading={novelsQuery.loading} novels={novelsQuery.data?.novels} limit={limit} offset={offset}  setOffset={setOffset} title={"投稿した小説"}/>
+        }
+        </>
+        }
+        {novelType === 1 && 
+        <>
+        {
+        editedNovelsQuery.loading ?
+        <></>
+        :
+            <ProfileNovelsComponent loading={editedNovelsQuery.loading} novels={editedNovelsQuery.data?.edited_novels} limit={limit} offset={offset}  setOffset={setOffset} title={"編集した小説"}/>
+    }
     </>
 }
         </>
@@ -362,6 +385,7 @@ function ProfileComments(props) {
 
 export default function Profile({user}) {
     const router = useRouter();
+    const [novelType, setNovelType] = React.useState(0);
     const { pk } = router.query
     const profile = useQuery(
         GET_USERS_ONE_BY_ID_FOR_PROFILE, 
@@ -373,6 +397,18 @@ export default function Profile({user}) {
                 console.error(error);
             },
         })
+        const handleClick = (e) => {
+            const text = e.target.innerText;
+            if (text === "投稿した小説") {
+                setNovelType(0)
+            } else if (text === "編集した小説") {
+                setNovelType(1)
+            } else if (text === "いいねした小説") {
+                setNovelType(2)
+            } else if (text === "コメントした小説") {
+                setNovelType(3)
+            }
+        }
     
     return (
         <Box>
@@ -383,12 +419,18 @@ export default function Profile({user}) {
                     :
                     <ProfileCard user={profile.data?.users[0]} user_pk={user.pk} user_id={user.id}/>
                     }
+                    <Paper sx={{ width: "100%", padding: 3 }}>
+        <Chip label={"投稿した小説"} variant={novelType === 0 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
+        <Chip label={"編集した小説"} variant={novelType === 1 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
+        {/* <Chip label={"いいねした小説"} variant={novelType === 2 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} />
+        <Chip label={"コメントした小説"} variant={novelType === 3 ? "filled" : "outlined"} onClick={handleClick} sx={{ margin: 0.5 }} /> */}
+    </Paper>
                 </Grid>
                 <Grid item xs={12} md={8} style={{}}>
                     {profile.loading ?
                     <CircularProgress />
                     :
-                    <ProfileNovels novels={profile.data?.users[0].users_novels} profile={profile} />
+                    <ProfileNovels profile={profile} novelType={novelType} />
                     }
                 </Grid>
             </Grid>

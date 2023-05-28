@@ -1,0 +1,53 @@
+table:
+  name: users_edited_novel_favorite
+  schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check: {}
+      columns:
+        - created_at
+        - edited_novel_pk
+        - pk
+        - user_pk
+        - user_id
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - pk
+        - user_pk
+        - edited_novel_pk
+        - user_id
+        - created_at
+      filter: {}
+      allow_aggregations: true
+  - role: user
+    permission:
+      columns:
+        - created_at
+        - edited_novel_pk
+        - pk
+        - user_pk
+        - user_id
+      filter: {}
+      allow_aggregations: true
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - created_at
+        - edited_novel_pk
+        - pk
+        - user_pk
+        - user_id
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      check: null
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id

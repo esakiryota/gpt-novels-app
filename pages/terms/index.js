@@ -3,7 +3,32 @@ import * as React from 'react';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import TopBar from '../../components/topBar';
+import { withIronSessionSsr } from "iron-session/next";
+import { ironOptions } from "../../lib/ironSession/config";
+import { auth } from '../../lib/firebase/config'
 
+export const getServerSideProps = withIronSessionSsr(
+    async function getServerSideProps({ req }) {
+      const user = req.session.user;
+      if (!user) {
+        const authCheck = false;
+        return {
+            props: {
+                auth: authCheck
+            }
+        }
+      } else {
+        const authCheck = true;
+        return {
+            props: {
+                user: user,
+                auth: authCheck
+            }
+        }
+      }
+    },
+    ironOptions
+  );
 
 function Terms() {
     const homeUrl = process.env.PUBLIC_URL;
